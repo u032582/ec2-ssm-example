@@ -30,7 +30,7 @@ export class ExampleVpcStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
-    const vpc = new ec2.Vpc(this, 'Vpc', {
+    this.vpc = new ec2.Vpc(this, 'Vpc', {
       ipAddresses: ec2.IpAddresses.cidr(VPC_CIDR),
       subnetConfiguration: [
         {
@@ -47,31 +47,31 @@ export class ExampleVpcStack extends Stack {
     });
 
     // We need to add the VPC endpoints for SSM in the parent region
-    vpc.addInterfaceEndpoint('ssm-messages', {
+    this.vpc.addInterfaceEndpoint('ssm-messages', {
       privateDnsEnabled: true,
       service: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
-      subnets: vpc.selectSubnets(isolatedSubnetsSelection),
+      subnets: this.vpc.selectSubnets(isolatedSubnetsSelection),
     });
 
-    vpc.addInterfaceEndpoint('ec2-messages', {
+    this.vpc.addInterfaceEndpoint('ec2-messages', {
       privateDnsEnabled: true,
       service: ec2.InterfaceVpcEndpointAwsService.EC2_MESSAGES,
-      subnets: vpc.selectSubnets(isolatedSubnetsSelection),
+      subnets: this.vpc.selectSubnets(isolatedSubnetsSelection),
     });
 
-    vpc.addInterfaceEndpoint('ssm', {
+    this.vpc.addInterfaceEndpoint('ssm', {
       privateDnsEnabled: true,
       service: ec2.InterfaceVpcEndpointAwsService.SSM,
-      subnets: vpc.selectSubnets(isolatedSubnetsSelection),
+      subnets: this.vpc.selectSubnets(isolatedSubnetsSelection),
     });
 
     // 現状のCDKではprivateDNSをtrueとすると、Private DNSのinbound Endpointが有効になってしまう。
     // その場合gatewayエンドポイントが必要になる（らしい）。gatawayエンドポイントは作りたくないので
     // PrivateDNSをfalseとして、AWSコンソールで手動でTrueに設定する、
-    vpc.addInterfaceEndpoint('s3', {
+    this.vpc.addInterfaceEndpoint('s3', {
       privateDnsEnabled: false,
       service: ec2.InterfaceVpcEndpointAwsService.S3,
-      subnets: vpc.selectSubnets(isolatedSubnetsSelection),
+      subnets: this.vpc.selectSubnets(isolatedSubnetsSelection),
     });
 
   }
