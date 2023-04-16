@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { ExampleLocalZoneStack } from './example-localzone-stack';
+import { ExampleVpcStack } from './example-vpc';
 
 // Follow the setup process at https://docs.aws.amazon.com/cdk/v2/guide/environments.html
 const env = {
@@ -9,4 +9,4 @@ const env = {
 };
 
 const app = new cdk.App();
-new ExampleLocalZoneStack(app, 'ExampleLocalZoneStack', { env });
+new ExampleVpcStack(app, 'ExampleVpcStack', { env });
