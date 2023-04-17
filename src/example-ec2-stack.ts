@@ -3,6 +3,7 @@ import {
   aws_iam as iam,
   aws_ec2 as ec2
 } from 'aws-cdk-lib';
+import { Subnet } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 
 // TODO: Change these to suitable values
@@ -30,7 +31,7 @@ userDataNatInstance.addCommands(
 );
 
 export class ExamplePrivateEC2Stack extends Stack {
-  
+
   // The VPC is deployed to the parent region and in the Local Zone
   get availabilityZones() {
     return [
@@ -38,15 +39,15 @@ export class ExamplePrivateEC2Stack extends Stack {
     ];
   }
 
-  constructor(scope: Construct, id: string, vpc: ec2.Vpc, props: StackProps) {
+  constructor(scope: Construct, id: string, vpc: ec2.Vpc, subnetId: string, props: StackProps) {
     super(scope, id, props);
-
     // Instance role that allows SSM to connect
     const role = new iam.Role(this, 'InstanceRoleWithSsmPolicy', {
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com')
     });
     role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
     role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess'));
+
 
     const instance = new ec2.Instance(this, 'PrivateInstance', {
       vpc: vpc,

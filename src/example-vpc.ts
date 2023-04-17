@@ -1,5 +1,5 @@
 import {
-  Stack, 
+  Stack,
   StackProps,
   aws_ec2 as ec2
 } from 'aws-cdk-lib';
@@ -17,13 +17,6 @@ const isolatedSubnetsSelection: ec2.SubnetSelection = {
 };
 
 export class ExampleVpcStack extends Stack {
-
-  // The VPC is deployed to the parent region and in the Local Zone
-  get availabilityZones() {
-    return [
-      REGION_AZ,
-    ];
-  }
 
   vpc: ec2.Vpc;
 
@@ -46,24 +39,32 @@ export class ExampleVpcStack extends Stack {
       ]
     });
 
+
+    this.addInterfaceEndpoints();
+
+  }
+
+  private addInterfaceEndpoints() {
     // We need to add the VPC endpoints for SSM in the parent region
-    this.vpc.addInterfaceEndpoint('ssm-messages', {
-      privateDnsEnabled: true,
-      service: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
-      subnets: this.vpc.selectSubnets(isolatedSubnetsSelection),
-    });
+    {
+      this.vpc.addInterfaceEndpoint('ssm-messages', {
+        privateDnsEnabled: true,
+        service: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
+        subnets: this.vpc.selectSubnets(isolatedSubnetsSelection),
+      });
 
-    this.vpc.addInterfaceEndpoint('ec2-messages', {
-      privateDnsEnabled: true,
-      service: ec2.InterfaceVpcEndpointAwsService.EC2_MESSAGES,
-      subnets: this.vpc.selectSubnets(isolatedSubnetsSelection),
-    });
+      this.vpc.addInterfaceEndpoint('ec2-messages', {
+        privateDnsEnabled: true,
+        service: ec2.InterfaceVpcEndpointAwsService.EC2_MESSAGES,
+        subnets: this.vpc.selectSubnets(isolatedSubnetsSelection),
+      });
 
-    this.vpc.addInterfaceEndpoint('ssm', {
-      privateDnsEnabled: true,
-      service: ec2.InterfaceVpcEndpointAwsService.SSM,
-      subnets: this.vpc.selectSubnets(isolatedSubnetsSelection),
-    });
+      this.vpc.addInterfaceEndpoint('ssm', {
+        privateDnsEnabled: true,
+        service: ec2.InterfaceVpcEndpointAwsService.SSM,
+        subnets: this.vpc.selectSubnets(isolatedSubnetsSelection),
+      });
+    }
 
     // 現状のCDKではprivateDNSをtrueとすると、Private DNSのinbound Endpointが有効になってしまう。
     // その場合gatewayエンドポイントが必要になる（らしい）。gatawayエンドポイントは作りたくないので
@@ -73,6 +74,7 @@ export class ExampleVpcStack extends Stack {
       service: ec2.InterfaceVpcEndpointAwsService.S3,
       subnets: this.vpc.selectSubnets(isolatedSubnetsSelection),
     });
-
   }
 }
+
+
